@@ -13,6 +13,10 @@ http://stackoverflow.com/questions/23828264/how-to-make-a-simple-multithreaded-s
 import socket
 import threading
 
+#Check every 10 Seconds if the thread should be dead
+socket.setdefaulttimeout(10)
+
+
 class ThreadedServer(object):
     def __init__(self, host, port):
         self.host = host
@@ -20,18 +24,31 @@ class ThreadedServer(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
-
+        self.comThreads = []
+        self.alive = True;
+    def listenWrapper(self,client,address):
+        client, address = self.sock.accept()
+    
     def listen(self):
         self.sock.listen(5)
         while True:
-            client, address = self.sock.accept()
-            client.settimeout(60)
-            threading.Thread(target = self.listenToClient,args = (client,address)).start()
-
+            try:
+                client, address = self.sock.accept()
+                client.settimeout(60)              
+                threading.Thread(target = self.listenToClient,args = (client,address)).start()
+            except socket.timeout:
+                #self.sock.close()
+                if self.alive:
+                    continue;
+                else:
+#                    for t in self.comThreads:
+#                        if t.isAlive():
+#                            t.join(0.1)
+                    break;
 
     def listenToClient(self, client, address):
         size = 1024
-        while True:
+        while self.alive:
             try:
                 data = client.recv(size)
                 if data:
@@ -48,4 +65,17 @@ if __name__ == "__main__":
     #port_num = input("Port? ")
     print("I am on: " + socket.gethostbyname(socket.gethostname()))    
     port_num = 8080
-    ThreadedServer(socket.gethostbyname(socket.gethostname()),port_num).listen()
+    TS = ThreadedServer(socket.gethostbyname(socket.gethostname()),port_num)
+    t = threading.Thread(target=TS.listen)
+    t.start();
+    while(1):
+        try:
+            print"hi"
+        except KeyboardInterrupt:
+            break;
+    TS.sock.close();
+    TS.alive = False;
+    if t.isAlive():    
+        print("closing...")
+        t.join(0.1);
+        print("closed...")
