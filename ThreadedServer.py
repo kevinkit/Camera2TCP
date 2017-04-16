@@ -85,8 +85,9 @@ class ThreadedServer(object):
      #                   if self.lock0:
       #                      client.send(self.RGB1)
       #                  else:
-
-                        client.send(self.RGB0)
+                        re = TS.imageCapture()
+                        if re:
+                            client.send(self.RGB0)
 
                 else:
                     raise error('Client disconnected')
@@ -103,14 +104,14 @@ if __name__ == "__main__":
     t.start();
     while(1):
         try:
-            
-            TS.imageCapture()
+            print("i am working!!")
+     #       TS.imageCapture()
    #         if TS.lock0:
    #             print(len(TS.RGB1))
   #              print(TS.RGB1.shape)
                 #cv2.imshow('frame',TS.RGB1)
   #          else:
-            print(TS.RGB0.shape)
+       #     print(TS.RGB0.shape)
             
         #    if TS.ret:
         #        cv2.imshow('frame',TS.RGB0)
