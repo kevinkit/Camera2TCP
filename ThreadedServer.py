@@ -12,13 +12,13 @@ http://stackoverflow.com/questions/23828264/how-to-make-a-simple-multithreaded-s
 
 import socket
 import threading
-
+import cv2
 #Check every 10 Seconds if the thread should be dead
 socket.setdefaulttimeout(10)
 
 
 class ThreadedServer(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port,camtype="webcam",ID=0):
         self.host = host
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,14 +26,40 @@ class ThreadedServer(object):
         self.sock.bind((self.host, self.port))
         self.comThreads = []
         self.alive = True;
+        self.RGB0 = [];
+        self.RGB1 = [];
+        self.Depth = [];
+        self.Body = [];
+        self.camtype = camtype;
+        self.lock0 = False;
+        self.lock1 = True;
+        self.ret = False;
+        if camtype == "webcam":
+            import cv2
+            self.cap = cv2.VideoCapture(ID)
+            
     def listenWrapper(self,client,address):
         client, address = self.sock.accept()
-    
+    def imageCapture(self):
+        if self.camtype == "webcam":
+            ret, frame = self.cap.read()
+            if ret:
+           #     #First container is locked
+           #     if self.lock0:
+                 self.RGB0 = frame;
+                 self.ret = ret;
+#                    self.lock0 = False;
+#                else:
+#                    self.RGB1 = frame;
+#                    self.lock0 = True;
+#                
+        return ret
     def listen(self):
         self.sock.listen(5)
         while True:
             try:
                 client, address = self.sock.accept()
+                #self.imageCapture();
                 client.settimeout(60)              
                 threading.Thread(target = self.listenToClient,args = (client,address)).start()
             except socket.timeout:
@@ -53,8 +79,15 @@ class ThreadedServer(object):
                 data = client.recv(size)
                 if data:
                     # Set the response to echo back the recieved data 
-                    response = data
-                    client.send(response)
+                    #response = data
+                    #client.send(response)
+                    #if data == 'RGB':
+     #                   if self.lock0:
+      #                      client.send(self.RGB1)
+      #                  else:
+
+                        client.send(self.RGB0)
+
                 else:
                     raise error('Client disconnected')
             except:
@@ -70,7 +103,19 @@ if __name__ == "__main__":
     t.start();
     while(1):
         try:
-            print"hi"
+            
+            TS.imageCapture()
+   #         if TS.lock0:
+   #             print(len(TS.RGB1))
+  #              print(TS.RGB1.shape)
+                #cv2.imshow('frame',TS.RGB1)
+  #          else:
+            print(TS.RGB0.shape)
+            
+        #    if TS.ret:
+        #        cv2.imshow('frame',TS.RGB0)
+            
+            
         except KeyboardInterrupt:
             break;
     TS.sock.close();
