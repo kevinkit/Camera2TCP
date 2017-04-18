@@ -12,7 +12,31 @@ http://stackoverflow.com/questions/23828264/how-to-make-a-simple-multithreaded-s
 
 import socket
 import threading
-import cv2
+import sys
+missings = 0
+
+
+try:
+    import cv2
+except ImportError:
+    print("Missing OpenCV!")
+    missings = 1
+#Advanced in case that Kinect is installed
+try:
+    from pykinect2 import PyKinectV2
+    from pykinect2.PyKinectV2 import *
+    from pykinect2 import PyKinectRuntime
+    import ctypes
+    import _ctypes
+    import pygame
+    import sys
+except ImportError:
+    print("Missing libs for Kinet!")
+    if missings == 1:
+        print("No library for camera detection found, neither OpenCV nor Kinect")
+        sys.exit()
+
+
 #Check every 10 Seconds if the thread should be dead
 socket.setdefaulttimeout(10)
 
@@ -34,6 +58,10 @@ class ThreadedServer(object):
         self.lock0 = False;
         self.lock1 = True;
         self.ret = False;
+        self.log = "test"
+        
+        self.camids = [];
+                      
         if camtype == "webcam":
             import cv2
             self.cap = cv2.VideoCapture(ID)
@@ -43,33 +71,23 @@ class ThreadedServer(object):
     def imageCapture(self):
         if self.camtype == "webcam":
             ret, frame = self.cap.read()
+            self.ret = ret;
             if ret:
-           #     #First container is locked
-           #     if self.lock0:
-                 self.RGB0 = frame;
-                 self.ret = ret;
-#                    self.lock0 = False;
-#                else:
-#                    self.RGB1 = frame;
-#                    self.lock0 = True;
-#                
-        return ret
+                 self.RGB0 = frame;       
+                 return ret,frame
+            else:
+                 return ret, None
     def listen(self):
         self.sock.listen(5)
         while True:
             try:
                 client, address = self.sock.accept()
-                #self.imageCapture();
                 client.settimeout(60)              
                 threading.Thread(target = self.listenToClient,args = (client,address)).start()
             except socket.timeout:
-                #self.sock.close()
                 if self.alive:
                     continue;
                 else:
-#                    for t in self.comThreads:
-#                        if t.isAlive():
-#                            t.join(0.1)
                     break;
 
     def listenToClient(self, client, address):
@@ -77,18 +95,29 @@ class ThreadedServer(object):
         while self.alive:
             try:
                 data = client.recv(size)
+                self.log = data;
                 if data:
-                    # Set the response to echo back the recieved data 
-                    #response = data
-                    #client.send(response)
-                    #if data == 'RGB':
-     #                   if self.lock0:
-      #                      client.send(self.RGB1)
-      #                  else:
-                        re = TS.imageCapture()
+                    #Send specific frame stuff
+                    if data == "Connecting2RGBWebcam":   
+                        self.log = "capturing"
+                        re,frame = self.imageCapture()
+                        if re:
+                             self.log = "succesful init capture"
+                             client.send(str(int(self.RGB0.shape[0])) + ',' + str(int(self.RGB0.shape[1]))+ ',' + str(int(self.RGB0.shape[2])))
+                        else:
+                             print("no service available")
+                             self.log = "unsuccesful capture"
+                             client.send("no service available")
+                        #self.ret = False;
+                    elif data == "RGB":
+                        re,frame = self.imageCapture()
                         if re:
                             client.send(self.RGB0)
-
+                            self.log  = "succesful loop capture"
+                        else:
+                            self.log = "unsuccesful loop capture"
+                        #self.ret = False;
+    
                 else:
                     raise error('Client disconnected')
             except:
@@ -96,29 +125,32 @@ class ThreadedServer(object):
                 return False
 
 if __name__ == "__main__":
-    #port_num = input("Port? ")
     print("I am on: " + socket.gethostbyname(socket.gethostname()))    
-    port_num = 8080
+    port_num = 2004
     TS = ThreadedServer(socket.gethostbyname(socket.gethostname()),port_num)
     t = threading.Thread(target=TS.listen)
     t.start();
+
     while(1):
         try:
-            print("i am working!!")
-     #       TS.imageCapture()
-   #         if TS.lock0:
-   #             print(len(TS.RGB1))
-  #              print(TS.RGB1.shape)
-                #cv2.imshow('frame',TS.RGB1)
-  #          else:
-       #     print(TS.RGB0.shape)
+            print("I am on: " + socket.gethostbyname(socket.gethostname())) 
+
             
-        #    if TS.ret:
-        #        cv2.imshow('frame',TS.RGB0)
-            
-            
+            if TS.ret:
+                print(TS.RGB0.shape)
+                print(TS.RGB0.size)
+                print TS.log
+
+                cv2.imshow('Server',TS.RGB0)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            else:
+                print("no cam detected!")
+                print TS.log
         except KeyboardInterrupt:
             break;
+            
+    #Clean up 
     TS.sock.close();
     TS.alive = False;
     if t.isAlive():    
