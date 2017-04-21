@@ -18,7 +18,7 @@ import cv2
 
 import time
 host = socket.gethostbyname(socket.gethostname())
-
+host = '141.19.87.118'
 port = 2004
 BUFFER_SIZE = 305280
 MESSAGE_ASK = "Connecting2KinectDepth"
@@ -58,10 +58,17 @@ while True:
     t0  = time.time()
     tcpClientA.send(MESSAGE) 
     print("message was send")
+
+    sem = 0;
     
     try:
         print("waiting...")
-        data = tcpClientA.recv(BUFFER_SIZE)
+	while len(data) < BUFFER_SIZE:
+		if sem == 0:
+        		data = tcpClientA.recv(BUFFER_SIZE)
+			sem = 1;
+		else:
+			data += tcpClientA.recv(BUFFER_SIZE)
         print("recieving data")
     except Exception:
         print("host unreachable...will try...forever...")
@@ -81,8 +88,10 @@ while True:
     else:
         continue;
 
-
-    cv2.imshow('something',rep)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    try:
+    	cv2.imshow('something',rep)
+    	if cv2.waitKey(1) & 0xFF == ord('q'):
+        	break
+    except:
+	cv2.imwrite('depth.png',rep)
 tcpClientA.close() 
