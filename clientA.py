@@ -48,6 +48,7 @@ while True:
     t0  = time.time()
     tcpClientA.send(MESSAGE)    
     init = 0;
+    data = ''
     try:
 	while len(data) < BUFFER_SIZE:
 		if init == 0:        
