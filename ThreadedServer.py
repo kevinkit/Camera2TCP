@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Sat Apr 22 16:36:39 2017
+
+@author: Kevin
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Sun Apr 16 18:59:08 2017
 
 @author: kevinkit
@@ -12,9 +19,11 @@ http://stackoverflow.com/questions/23828264/how-to-make-a-simple-multithreaded-s
 
 import socket
 import threading
-import thread
+import argparse
 import sys
 import numpy as np
+import random
+import cv2
 missings = 0
 
 
@@ -48,16 +57,26 @@ except ImportError:
 #Check every 10 Seconds if the thread should be dead
 socket.setdefaulttimeout(10)
 # colors for drawing different bodies 
-SKELETON_COLORS = [pygame.color.THECOLORS["red"], 
-                  pygame.color.THECOLORS["blue"], 
-                  pygame.color.THECOLORS["green"], 
-                  pygame.color.THECOLORS["orange"], 
-                  pygame.color.THECOLORS["purple"], 
-                  pygame.color.THECOLORS["yellow"], 
-                  pygame.color.THECOLORS["violet"]]
+
+if Kinect:
+    SKELETON_COLORS = [pygame.color.THECOLORS["red"], 
+                      pygame.color.THECOLORS["blue"], 
+                      pygame.color.THECOLORS["green"], 
+                      pygame.color.THECOLORS["orange"], 
+                      pygame.color.THECOLORS["purple"], 
+                      pygame.color.THECOLORS["yellow"], 
+                      pygame.color.THECOLORS["violet"]]
+
+def RandThread(retval,i):
+    retval[i] = random.randint(0,255)
+
+retval = [None];
+T = threading.Thread(target=RandThread,args=[retval,0])
+T.start()
+
 
 class ThreadedServer(object):
-    def __init__(self, host, port,camtype="webcam",ID=0):
+    def __init__(self, host, port,camtype="webcam",ID=0,image_name='lena.png',change=True):
         self.host = host
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -72,6 +91,13 @@ class ThreadedServer(object):
         self.ret = False;
         self.log = "test"
         self.HDRGB = [];
+        self.imageName = image_name;
+        self.change = change;
+        self.sys_random = random.SystemRandom();
+        #Assuming 8bit pic
+        self.cnt = 0;    
+        self.trip = 0;
+        self.img = cv2.imread(self.imageName);
 
         if Kinect: 
             pygame.init() 
@@ -94,7 +120,7 @@ class ThreadedServer(object):
             self._bodies = None
  
         if camtype == "webcam":
-            import cv2
+         
             self.cap = cv2.VideoCapture(ID)
  
     def draw_color_frame(self, frame, target_surface):
@@ -104,6 +130,11 @@ class ThreadedServer(object):
         print(frame.size)
         del address
         target_surface.unlock()
+    
+    def getLena(self):
+        img = cv2.imread('lena.png')
+        return img;
+
 
     def listenWrapper(self,client,address):
         client, address = self.sock.accept()
@@ -351,6 +382,20 @@ class ThreadedServer(object):
                             client.send(np.asarray(f))
                         else:
                             client.send("no depth frame")
+                    elif data == 'Connecting2SimpleImage':
+                            client.send(str(int(self.img.shape[0])) + ',' + str(int(self.img.shape[1]))+ ',' + str(int(self.img.shape[2])))
+                    elif data == "SimpleImage":
+                            self.log = random.randint(0,255)  
+#                            if self.cnt == 255:
+#                                self.cnt = 0;
+#                            else:
+#                                self.cnt = self.cnt +1;
+                            self.img = self.img + self.log         
+                            client.send(np.asarray(self.img))
+
+                
+                        
+
 
                 else:
                     raise error('Client disconnected')
@@ -358,13 +403,36 @@ class ThreadedServer(object):
                 client.close()
                 return False
 
+def parse_args():
+    """Parse input arguments
+    """
+    parser = argparse.ArgumentParser(description="Someday I will write something here.sry.")
+
+
+
+    parser.add_argument('--Kinect',help='Disable/Enable Kinect, Default=True',default=True,type=bool)
+    parser.add_argument('--Webcam',help='Disable/Enable Webcam, Default=True',default=True,type=bool)
+    parser.add_argument('--Image',help='Used to send image for emulation',default='lena.png')
+    parser.add_argument('--Port',help='Port number for communcation',default=8080,type=int)
+    parser.add_argument('--Change',help='Allow changing the image for debugging',default=True)
+    args = parser.parse_args()
+    return args
+
+
+
+
+
 if __name__ == "__main__":
     
    # Kinect = False;
-    
+        
+        
+    args = parse_args()
+    if not Kinect:
+        args.Kinect =  Kinect;
+        print("NO KINECT FRAMEWORK INSTALLED!")
     print("I am on: " + socket.gethostbyname(socket.gethostname()))    
-    port_num = 2004
-    TS = ThreadedServer(socket.gethostbyname(socket.gethostname()),port_num)
+    TS = ThreadedServer(socket.gethostbyname(socket.gethostname()),args.Port,args.Image,args.Change)
 
     t = threading.Thread(target=TS.listen)
     t.start();
@@ -372,8 +440,8 @@ if __name__ == "__main__":
     while(1):
         try:
             print("I am on: " + socket.gethostbyname(socket.gethostname())) 
-
-            if Kinect:
+            print TS.cnt
+            if args.Kinect:
                 print("Kinect available")                
             if TS.ret:
                 print(TS.RGB0.shape)
@@ -387,16 +455,24 @@ if __name__ == "__main__":
             else:
                 print("no cam detected!")
                 print TS.log
+            
+                cv2.imshow('Server',TS.img)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
         except KeyboardInterrupt:
             break;
             
     #Clean up 
     TS.sock.close();
     TS.alive = False;
-    TS._kinect.close()
-    if Kinect:
-        TS._done = True;
+
+
+    if args.Kinect:        
+        TS._kinect.close()
+    
+    TS._done = True;
     if t.isAlive():    
         print("closing...")
         t.join(0.1);
         print("closed...")
+    
