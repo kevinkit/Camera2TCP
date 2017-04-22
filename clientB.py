@@ -56,6 +56,7 @@ while True:
     print("message was send")
     print shaping
     sem = 0;
+    data = ''
     try:
         print("waiting...")
 	while len(data) < BUFFER_SIZE:
