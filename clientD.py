@@ -60,7 +60,7 @@ while True:
     print("message was send")
 
     sem = 0;
-    
+    data = ''
     try:
         print("waiting...")
 	while len(data) < BUFFER_SIZE:
