@@ -76,7 +76,7 @@ T.start()
 
 
 class ThreadedServer(object):
-    def __init__(self, host, port,camtype="webcam",ID=0,image_name='lena.png',change=True):
+    def __init__(self, host, port,camtype="webcam",ID=0,image_name='lena.png',change=True,Debug=True):
         self.host = host
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -97,7 +97,9 @@ class ThreadedServer(object):
         #Assuming 8bit pic
         self.cnt = 0;    
         self.trip = 0;
-        self.img = cv2.imread(self.imageName);
+        
+        if Debug:        
+            self.img = cv2.imread(self.imageName);
 
         if Kinect: 
             pygame.init() 
@@ -383,16 +385,21 @@ class ThreadedServer(object):
                         else:
                             client.send("no depth frame")
                     elif data == 'Connecting2SimpleImage':
-                            client.send(str(int(self.img.shape[0])) + ',' + str(int(self.img.shape[1]))+ ',' + str(int(self.img.shape[2])))
+                            if Debug:
+                                client.send(str(int(self.img.shape[0])) + ',' + str(int(self.img.shape[1]))+ ',' + str(int(self.img.shape[2])))
+                            else:
+                                client.send("Invalid Request")
                     elif data == "SimpleImage":
-                            self.log = random.randint(0,255)  
-#                            if self.cnt == 255:
-#                                self.cnt = 0;
-#                            else:
-#                                self.cnt = self.cnt +1;
-                            self.img = self.img + self.log         
-                            client.send(np.asarray(self.img))
-
+                            if Debug:
+                                self.log = random.randint(0,255)  
+    #                            if self.cnt == 255:
+    #                                self.cnt = 0;
+    #                            else:
+    #                                self.cnt = self.cnt +1;
+                                self.img = self.img + self.log         
+                                client.send(np.asarray(self.img))
+                            else:
+                                client.send("Invalid Request")
                 
                         
 
@@ -415,6 +422,7 @@ def parse_args():
     parser.add_argument('--Image',help='Used to send image for emulation',default='lena.png')
     parser.add_argument('--Port',help='Port number for communcation',default=8080,type=int)
     parser.add_argument('--Change',help='Allow changing the image for debugging',default=True)
+    parser.add_argument('--Debug',help='Allow Debuging (sending one image)',default=True)
     args = parser.parse_args()
     return args
 
@@ -432,7 +440,7 @@ if __name__ == "__main__":
         args.Kinect =  Kinect;
         print("NO KINECT FRAMEWORK INSTALLED!")
     print("I am on: " + socket.gethostbyname(socket.gethostname()))    
-    TS = ThreadedServer(socket.gethostbyname(socket.gethostname()),args.Port,args.Image,args.Change)
+    TS = ThreadedServer(socket.gethostbyname(socket.gethostname()),args.Port,args.Image,args.Change,args.Debug)
 
     t = threading.Thread(target=TS.listen)
     t.start();
