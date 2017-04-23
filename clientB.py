@@ -19,7 +19,7 @@ host = '141.19.87.118'
 port = 2004
 BUFFER_SIZE = 305280
 MESSAGE_ASK = "Connecting2KinectWebcam"
-MESSAGE = "RGBHD"
+MESSAGE = "KinectWebcam"
  
 tcpClientA = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 tcpClientA.connect((host, port))
