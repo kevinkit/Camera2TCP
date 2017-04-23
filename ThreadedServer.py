@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Apr 22 16:36:39 2017
-
-@author: Kevin
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Sun Apr 16 18:59:08 2017
 
 @author: kevinkit
@@ -343,7 +336,7 @@ class ThreadedServer(object):
                              print("no service available")
                              self.log = "unsuccesful capture"
                              client.send("no service available")
-                    elif data == "RGB":
+                    elif data == "RGBWebcam":
                         re,frame = self.getRGB()
                         if re:
                             client.send(self.RGB0)
@@ -357,7 +350,7 @@ class ThreadedServer(object):
                             client.send(str(self._kinect.max_body_count))
                     elif data == "Connecting2KinectDepth":
                             client.send("512," + "424," + "1")
-                    elif data == "RGBHD":
+                    elif data == "KinectWebcam":
                             self.log = "start computation"
                             frame = self.getHDRGB()
                             if frame is not None:
@@ -367,7 +360,7 @@ class ThreadedServer(object):
                             else:
                                 client.send("no frame")
                                 self.log = "no frame"
-                    elif data == "Skeleton":
+                    elif data == "KinectSkeleton":
                         self.log = "bodies: "  + str(self._bodies)
                         #client.send(np.asarray(self._bodies));
                         data = []
@@ -392,7 +385,7 @@ class ThreadedServer(object):
                                 #client.send(np.asarray(data))
                         else:
                             client.send("no bodies")
-                    elif data == "Depth":
+                    elif data == "KinectDepth":
                         if self._kinect.has_new_depth_frame():
                             depthframe = self._kinect.get_last_depth_frame();
                             self.log = len(depthframe)
@@ -414,21 +407,12 @@ class ThreadedServer(object):
 
                     elif data == "SimpleImage":
                             if self.Debug:
-
-#                                self.Lock.acquire(True)
-#                                self.cnt = self.cnt +1
-#                                self.log = self.cnt
-#                                self.img = self.img + 5*self.cnt
-#                                self.lock = 0;
-
                                 self.log = "sending"
-
                                 client.send(self.img)
-
-#                                self.Lock.release()
                             else:
                                 client.send("Invalid Request")
-
+                    else:
+                        client.send("Invalid request")
 
 
 
