@@ -21,7 +21,7 @@ host = socket.gethostbyname(socket.gethostname())
 port = 2004
 BUFFER_SIZE = 305280
 MESSAGE_ASK = "Connecting2KinectSkeleton"
-MESSAGE = "Skeleton"
+MESSAGE = "KinectSkeleton"
  
 tcpClientA = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 tcpClientA.connect((host, port))
