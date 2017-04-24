@@ -56,7 +56,10 @@ class Client(object):
                 else:
                     for i in range(0,len(self.shaping)):
                         self.shaping[i] = int(self.shaping[i])
-                    self.BUFFER_SIZE = int(self.shaping[0])*int(self.shaping[1])*int(self.shaping[2])
+                    if self.connectionType != 'KinectDepth':                        
+                        self.BUFFER_SIZE = int(self.shaping[0])*int(self.shaping[1])*int(self.shaping[2])
+                    else:
+                        self.BUFFER_SIZE = 2*int(self.shaping[0])*int(self.shaping[1])*int(self.shaping[2
                 return not None;
        #     except KeyboardInterrupt:
         ##        return None;                
@@ -93,6 +96,16 @@ class Client(object):
                 print("host unreachable")
                 return None;
         return not None;
+    def convertdata2depth(self):
+        temp = np.frombuffer(self.data,dtype=np.uint8)
+        h = np.asarray(temp[0::2],dtype=np.uint16)
+        l = np.asarray(temp[1::2],dtype=np.uint16)
+        res = (h << 8) + l
+        print len(res)
+        print self.shaping
+        img = res.reshape(self.shaping[1],self.shaping[0])
+        self.img = np.asarray(img >> 5,dtype=np.uint8)
+        return not None
     def convertdata2image(self):
         try:
             self.img = np.frombuffer(self.data,dtype=np.uint8).reshape((int(self.shaping[0]),int(self.shaping[1]),int(self.shaping[2])))
@@ -128,7 +141,10 @@ if __name__ == "__main__":
     while ret is not None:
         ret = client.getDataFromServer()
         if ret is not None:
-            ret = client.convertdata2image();
+            if client.ConnectionType != 'KinectDepth':
+                ret = client.convertdata2image()
+            else:
+                ret = client.convertdata2depth()                                                                                        
         if ret is not None:
             if client.show:
                 try:
