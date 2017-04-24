@@ -105,7 +105,7 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description="Someday I will write something here.sry.")
     parser.add_argument('--Service',help='Kind of Service', default='SimpleImage',
-                        choices=['SimpleImage','RGBWebCam','KinectWebcam','KinectSkeleton','KinectDepth'])
+                        choices=['SimpleImage','RGBWebcam','KinectWebcam','KinectSkeleton','KinectDepth'])
     parser.add_argument('--HOST',help='Define IP adres',default=socket.gethostbyname(socket.gethostname()))
     parser.add_argument('--PORT',help='Define PORT used',default=8080,type=int)
     parser.add_argument('--Show',help='Disable/Enable showing,default=True',default=True)
