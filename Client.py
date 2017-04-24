@@ -6,13 +6,9 @@ Created on Sun Apr 23 12:10:39 2017
 """
 
 #General classs for Connecting to any kind of Service
-
-
-
-import argparse
 import socket
 import numpy as np
-import cv2
+
 
 class Client(object):
     def __init__(self,ConnectionType='SimpleImage',show=False,write=False,IP=socket.gethostbyname(socket.gethostname()),Port=8080):
@@ -59,7 +55,7 @@ class Client(object):
                     if self.connectionType != 'KinectDepth':                        
                         self.BUFFER_SIZE = int(self.shaping[0])*int(self.shaping[1])*int(self.shaping[2])
                     else:
-                        self.BUFFER_SIZE = 2*int(self.shaping[0])*int(self.shaping[1])*int(self.shaping[2
+                        self.BUFFER_SIZE = 2*int(self.shaping[0])*int(self.shaping[1])*int(self.shaping[2])
                 return not None;
        #     except KeyboardInterrupt:
         ##        return None;                
@@ -112,53 +108,3 @@ class Client(object):
         except Exception:
             return None;
         return not None;
-     
-def parse_args():
-    """Parse input arguments
-    """
-    parser = argparse.ArgumentParser(description="Someday I will write something here.sry.")
-    parser.add_argument('--Service',help='Kind of Service', default='SimpleImage',
-                        choices=['SimpleImage','RGBWebcam','KinectWebcam','KinectSkeleton','KinectDepth'])
-    parser.add_argument('--HOST',help='Define IP adres',default=socket.gethostbyname(socket.gethostname()))
-    parser.add_argument('--PORT',help='Define PORT used',default=8080,type=int)
-    parser.add_argument('--Show',help='Disable/Enable showing,default=True',default=True)
-    parser.add_argument('--Write',help='Dsiable/Enable writing image files',default=False)
-
-    args = parser.parse_args()
-    return args
-
-
-
-
-
-if __name__ == "__main__":
-
-   # Kinect = False;
-    args = parse_args()
-    client = Client(ConnectionType=args.Service,show=args.Show,write=args.Write,IP=args.HOST,Port=args.PORT)
-    ret = client.initConnection()
-
-    while ret is not None:
-        ret = client.getDataFromServer()
-        if ret is not None:
-            if client.ConnectionType != 'KinectDepth':
-                ret = client.convertdata2image()
-            else:
-                ret = client.convertdata2depth()                                                                                        
-        if ret is not None:
-            if client.show:
-                try:
-                    cv2.imshow('something',client.img)
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
-                except Exception as e:
-                    print(e)
-            if client.write:
-                try:
-                    cv2.imwrite('something.png',client.img);
-                except Exception as e:
-                    print(e)
-    
-    
-    
-    
