@@ -66,7 +66,7 @@ All clients ending with a letter like A,B,C... are depricated. Use the Client.py
 Determines the Service one whiches to connect to. Currently there are the following options available:
 
 * SimpleImage (Just one image that gets alternated)
-* RGBWebCam (Conneting to a simple WebCam)
+* RGBWebcam (Conneting to a simple WebCam)
 * KinectWebcam (Connecting to Kinect RGB)
 * KinectSkeleton (Not working)
 * KinectDepth (Connecting to Kinect Depth Sensors)
