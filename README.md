@@ -1,5 +1,6 @@
 # Camera2TCP
-This repository is a python framework for making camera data available via TCP
+This repository is a python framework for making camera data available via TCP.
+Currently it only runs on Python 2.7, due to some old print statements. 
 
 
 # IMPORTANT
