@@ -11,12 +11,13 @@ import numpy as np
 
 
 class Client(object):
-    def __init__(self,ConnectionType='SimpleImage',show=False,write=False,IP=socket.gethostbyname(socket.gethostname()),Port=8080):
+    def __init__(self,ConnectionType='SimpleImage',show=False,write=False,IP=socket.gethostbyname(socket.gethostname()),Port=8080, camId = 0):
         self.connectionType = ConnectionType;
         self.host = IP
         self.show = show;
         self.write = write;
         self.port = Port;
+        self.camId = camId;
         self.BUFFER_SIZE = 305280
         self.MESSAGE_ASK = 'Connecting2' + ConnectionType
         self.MESSAGE = ConnectionType
@@ -59,8 +60,8 @@ class Client(object):
                 return not None;
        #     except KeyboardInterrupt:
         ##        return None;                
-        #        break;
-       
+        #        break;    
+        
     def initConnection2(self):
         while True:
             try:
