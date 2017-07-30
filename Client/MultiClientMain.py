@@ -90,9 +90,9 @@ if __name__ == "__main__":
     
     if len(args.HOST) != len(args.camId):
         print("Camera index does not match Host lsit, therefore using the first one as start point")
-        Write = range(args.camId[0],len(args.HOST));
+        camId = range(args.camId[0],len(args.HOST));
     else:
-        Write = args.Write;
+        camId = args.Write;
     
     
     
@@ -101,12 +101,18 @@ if __name__ == "__main__":
     print Port
     print args.HOST
     print Write
-    
+    print camId
     cnt = 0;
     client = [None]*len(args.HOST)
+    print client
     for host in args.HOST:
-        
-        client[cnt] = Client.Client(ConnectionType=Service[cnt],show=args.Show,write=args.Write,IP=host,Port=Port[cnt],camId=args.camId[cnt])
+        print cnt
+            
+        print Service[cnt]
+        print Write[cnt]
+        print host
+        print Port[cnt]
+        client[cnt] = Client.Client(ConnectionType=Service[cnt],show=args.Show,write=Write[cnt],IP=host,Port=Port[cnt],camId=camId[cnt])
         if client[cnt].write:
             imgNr = 0
             if( not os.path.isdir('./cam' + str(client[cnt].camId))):
