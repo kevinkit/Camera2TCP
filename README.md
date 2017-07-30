@@ -1,3 +1,8 @@
+lena.png is a an original picture used for calibration. 
+
+
+
+
 # Camera2TCP
 This repository is a python framework for making camera data available via TCP.
 Currently it only runs on Python 2.7, due to some old print statements. 
@@ -134,9 +139,9 @@ Allows to alter the image loaded from the Image parameter. It will make addition
 Allow Debuging, which is mainly the sending of the one image loaded by the Image paramter and alternated from the change parameter. 
 
 
+# LEGAL DISCLAIMER
 
 
-
-
+The image lena.png is owned by "Playmate of the Month". Playboy Magazine. November 1972, photographed by Dwight Hooker
 
 
