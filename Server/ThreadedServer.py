@@ -510,14 +510,14 @@ if __name__ == "__main__":
                 print(type(TS.RGB0))
                 print TS.log
 
-                cv2.imshow('Server',TS.RGB0)
+                cv2.imshow('Server: ' + socket.gethostbyname(socket.gethostname()) + ":" + str(args.Port),TS.RGB0)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
             else:
                 print("no cam detected!")
                 print TS.log
 
-                cv2.imshow('Server',TS.img)
+                cv2.imshow('Server: ' + socket.gethostbyname(socket.gethostname()) + ":" + str(args.Port),TS.img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                 if TS.ImageT.isAlive():
