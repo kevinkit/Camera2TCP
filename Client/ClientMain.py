@@ -23,8 +23,10 @@ def parse_args():
     if platform == "win32":
         parser.add_argument('--HOST',help='Define IP adres',default=socket.gethostbyname(socket.gethostname()))
     else:
-        ni.ifaddresses('eth0')
-        ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']    
+        try:
+            ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']    
+        except:
+            ip = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']   
         parser.add_argument('--HOST',help='Define IP adres',default=ip)
     parser.add_argument('--PORT',help='Define PORT used',default=8080,type=int)
     parser.add_argument('--Show',help='Disable/Enable showing,default=True',default=True)

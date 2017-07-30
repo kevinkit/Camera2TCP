@@ -30,6 +30,7 @@ python Client.py --HOST 192.168.2.10 --Service RGBWebcam
 ### Must-Have:
 
 * socket
+* netifaces
 * threading
 * sys
 * numpy

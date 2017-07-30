@@ -494,9 +494,10 @@ if __name__ == "__main__":
     if platform == "win32":
         ip = socket.gethostbyname(socket.gethostname());
     else:
-        ni.ifaddresses('eth0')
-        ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']    
-
+        try:
+            ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']    
+        except:
+            ip = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']   
     args = parse_args()
     if not Kinect:
         args.Kinect =  Kinect;
