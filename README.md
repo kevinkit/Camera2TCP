@@ -2,6 +2,21 @@
 This repository is a python framework for making camera data available via TCP.
 Currently it only runs on Python 2.7, due to some old print statements. 
 
+# Getting started
+
+
+This chapter will give a quick overview on how to start the project. For details see later chapters in this Readme.
+
+The Threaded server is the one providing the images, either from a camera, a kinect or from a webcam. The client is the one asking for those pictures. The client needs to know the IP-Adress of the Server.
+
+1. Start the Server. Here for example with a webcam. 
+```
+python ThreadedServer.py --Webcam 
+```
+2. On the same, or on any other machine start the Client and specify the wanted Service from the Server (Here a Webcam, like started on the Server). Here, the Server has the IP 192.178.2.10 and the wanted 
+```
+python Client.py --HOST 192.168.2.10 --Service RGBWebcam
+```
 
 # IMPORTANT
 
