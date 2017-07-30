@@ -51,7 +51,7 @@ if __name__ == "__main__":
         if ret is not None:
             if client.show:
                 try:
-                    cv2.imshow('something',client.img)
+                    cv2.imshow(args.Service + 'from: ' + args.HOST + ":" + str(args.PORT) ,client.img)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                 except Exception as e:
