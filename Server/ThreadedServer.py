@@ -16,7 +16,7 @@ import argparse
 import sys
 import numpy as np
 import random
-import cv2
+#import cv2
 import time
 import random
 missings = 0

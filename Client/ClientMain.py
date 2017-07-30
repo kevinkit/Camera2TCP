@@ -15,7 +15,7 @@ import os
 def parse_args():
     """Parse input arguments
     """
-    parser = argparse.ArgumentParser(description="Someday I will write something here.sry.")
+    parser = argparse.ArgumentParser(description="This is for one camera or one request only")
     parser.add_argument('--Service',help='Kind of Service', default='SimpleImage',
                         choices=['SimpleImage','RGBWebcam','KinectWebcam','KinectSkeleton','KinectDepth'])
     parser.add_argument('--HOST',help='Define IP adres',default=socket.gethostbyname(socket.gethostname()))
