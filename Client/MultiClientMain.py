@@ -12,14 +12,22 @@ import socket
 import time as ti
 import threading
 import os
-
+import sys
+from sys import platform
+import netifaces as ni
 def parse_args():
     """Parse input arguments
     """
     parser = argparse.ArgumentParser(description="Someday I will write something here.sry.")
     parser.add_argument('--Service',help='Kind of Service', default=['SimpleImage'],
                         choices=['SimpleImage','RGBWebcam','KinectWebcam','KinectSkeleton','KinectDepth'])
-    parser.add_argument('--HOST',help='Define IP adres',nargs='+',default=[socket.gethostbyname(socket.gethostname())])
+    
+    if platform == "win32":
+        parser.add_argument('--HOST',help='Define IP adres',nargs='+',default=[socket.gethostbyname(socket.gethostname())])
+    else:
+        ni.ifaddresses('eth0')
+        ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']    
+        parser.add_argument('--HOST',help='Define IP adres',nargs='+',default=[ip])
     parser.add_argument('--PORT',help='Define PORT used',nargs='+',default=[8080],type=int)
     parser.add_argument('--Show',help='Disable/Enable showing,default=True',default=True)
     parser.add_argument('--Write',help='Dsiable/Enable writing image files',default=[False])
@@ -92,7 +100,7 @@ if __name__ == "__main__":
         print("Camera index does not match Host lsit, therefore using the first one as start point")
         camId = range(args.camId[0],len(args.HOST));
     else:
-        camId = args.Write;
+        camId = args.camId;
     
     
     

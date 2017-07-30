@@ -19,6 +19,11 @@ import random
 #import cv2
 import time
 import random
+import sys
+from sys import platform
+import netifaces as ni
+
+
 missings = 0
 
 
@@ -486,21 +491,25 @@ def parse_args():
 if __name__ == "__main__":
 
    # Kinect = False;
-
+    if platform == "win32":
+        ip = socket.gethostbyname(socket.gethostname());
+    else:
+        ni.ifaddresses('eth0')
+        ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']    
 
     args = parse_args()
     if not Kinect:
         args.Kinect =  Kinect;
         print("NO KINECT FRAMEWORK INSTALLED!")
-    print("I am on: " + socket.gethostbyname(socket.gethostname()))
-    TS = ThreadedServer(socket.gethostbyname(socket.gethostname()),args.Port,image_name=args.Image,change=args.Change,Debug=args.Debug)
+    print("I am on: " + ip)
+    TS = ThreadedServer(ip,args.Port,image_name=args.Image,change=args.Change,Debug=args.Debug)
 
     t = threading.Thread(target=TS.listen)
     t.start();
 
     while(1):
         try:
-            print("I am on: " + socket.gethostbyname(socket.gethostname()))
+            print("I am on: " + ip)
             print TS.cnt
             if args.Kinect:
                 print("Kinect available")
@@ -510,14 +519,14 @@ if __name__ == "__main__":
                 print(type(TS.RGB0))
                 print TS.log
 
-                cv2.imshow('Server: ' + socket.gethostbyname(socket.gethostname()) + ":" + str(args.Port),TS.RGB0)
+                cv2.imshow('Server: ' + ip + ":" + str(args.Port),TS.RGB0)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
             else:
                 print("no cam detected!")
                 print TS.log
 
-                cv2.imshow('Server: ' + socket.gethostbyname(socket.gethostname()) + ":" + str(args.Port),TS.img)
+                cv2.imshow('Server: ' + ip + ":" + str(args.Port),TS.img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                 if TS.ImageT.isAlive():

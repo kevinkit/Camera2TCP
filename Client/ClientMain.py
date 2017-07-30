@@ -11,14 +11,21 @@ import argparse
 import socket
 import time as ti
 import os
-
+import sys
+from sys import platform
+import netifaces as ni
 def parse_args():
     """Parse input arguments
     """
     parser = argparse.ArgumentParser(description="This is for one camera or one request only")
     parser.add_argument('--Service',help='Kind of Service', default='SimpleImage',
                         choices=['SimpleImage','RGBWebcam','KinectWebcam','KinectSkeleton','KinectDepth'])
-    parser.add_argument('--HOST',help='Define IP adres',default=socket.gethostbyname(socket.gethostname()))
+    if platform == "win32":
+        parser.add_argument('--HOST',help='Define IP adres',default=socket.gethostbyname(socket.gethostname()))
+    else:
+        ni.ifaddresses('eth0')
+        ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']    
+        parser.add_argument('--HOST',help='Define IP adres',default=ip)
     parser.add_argument('--PORT',help='Define PORT used',default=8080,type=int)
     parser.add_argument('--Show',help='Disable/Enable showing,default=True',default=True)
     parser.add_argument('--Write',help='Dsiable/Enable writing image files',default=False)
