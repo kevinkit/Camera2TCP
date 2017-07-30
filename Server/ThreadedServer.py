@@ -18,6 +18,7 @@ import numpy as np
 import random
 import cv2
 import time
+import random
 missings = 0
 
 
@@ -95,17 +96,21 @@ class ThreadedServer(object):
         self.trip = 0;
         self.Debug = Debug
 
-
-
+        self.send_counter = 0;
+        self.rgb_cnt = 0;
         #Locks
         self.Lock  = threading.Lock()
 
         if self.Debug:
-            self.img = cv2.imread(self.imageName);
+            self.img = cv2.imread(self.imageName); #This one will be altered!
+            self.orig_img = cv2.imread(self.imageName); #This one will be the same
             self.ImageT = threading.Thread(target=self.imagechanger)
             self.ImageT.start()
+            self.height,self.width,self.channel = self.img.shape;
+            self.x_pos = random.randint(10,self.width);
+            self.y_pos = random.randint(10,self.height);
             if self.ImageT.isAlive():
-                self.log = "alive"
+                self.log = "height: " + str(self.height)
         if Kinect:
             pygame.init()
 
@@ -134,8 +139,43 @@ class ThreadedServer(object):
     def imagechanger(self):
         while self.alive:
         #    self.lock.acquire(True)
-            self.img = self.img + 10
-            self.log = "changing"
+            #self.img = self.img + 10
+            
+            self.send_counter = self.send_counter + 1;
+            
+            #self.rgb_cnt
+            
+            
+    
+            
+
+            if self.send_counter % 255  == 0:
+                if self.rgb_cnt != 2:
+                    self.rgb_cnt = self.rgb_cnt + 1;
+                else:
+                    self.rgb_cnt = 0;
+                    #Get the new random positions
+                    self.x_pos = random.randint(10,self.width);
+                    self.y_pos = random.randint(10,self.height)
+
+            
+                self.send_counter = 0;
+     
+
+            #if self.send_counter % 99999 == 0:
+            time.sleep(0.03)
+            #sendstr = str(self.send_counter) 
+            if self.rgb_cnt == 0:
+                
+               cv2.putText(self.img,"hello from", (self.x_pos+self.send_counter,self.y_pos), cv2.FONT_HERSHEY_SIMPLEX, 2, [0,0,self.send_counter])
+               cv2.putText(self.img,"the Server", (self.x_pos + 100+self.send_counter,self.y_pos +100), cv2.FONT_HERSHEY_SIMPLEX, 2, [0,0,self.send_counter])
+            elif self.rgb_cnt == 1:
+               cv2.putText(self.img,"hello from", (self.x_pos+self.send_counter,self.y_pos+self.send_counter), cv2.FONT_HERSHEY_SIMPLEX, 2, [0,self.send_counter,255])
+               cv2.putText(self.img,"the Server", (self.x_pos +100 +self.send_counter,self.y_pos +100), cv2.FONT_HERSHEY_SIMPLEX, 2, [0,self.send_counter,255])
+            elif self.rgb_cnt == 2:
+               cv2.putText(self.img,"hello from", (self.x_pos+self.send_counter,self.y_pos-self.send_counter), cv2.FONT_HERSHEY_SIMPLEX, 2, [255,255,self.send_counter])
+               cv2.putText(self.img,"the Server", (self.x_pos + 100+self.send_counter,self.y_pos + 100), cv2.FONT_HERSHEY_SIMPLEX, 2, [255,255,self.send_counter])
+            self.log = str(self.send_counter)
         #    self.lock.release()
         #time.sleep(1)
 
@@ -409,6 +449,7 @@ class ThreadedServer(object):
                             if self.Debug:
                                 self.log = "sending"
                                 client.send(self.img)
+                                self.img = self.orig_img;
                             else:
                                 client.send("Invalid Request")
                     else:
