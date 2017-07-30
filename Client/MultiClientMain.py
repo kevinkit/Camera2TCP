@@ -15,6 +15,7 @@ import os
 import sys
 from sys import platform
 import netifaces as ni
+import numpy as np
 def parse_args():
     """Parse input arguments
     """
@@ -34,19 +35,69 @@ def parse_args():
     parser.add_argument('--Show',help='Disable/Enable showing,default=True',default=True)
     parser.add_argument('--Write',help='Dsiable/Enable writing image files',default=[False])
     parser.add_argument('--camId',help='set the id of the camera',default=[0],type=int)
-
+    parser.add_argument('--Calibrate',help='enables affine calibration between the cameras',default=False)
     args = parser.parse_args()
     return args
 
 
 class ClientWrapper():
-    def __init__(self,client):
+    def __init__(self,client,calibration):
         self.client = client;
         self.ret = [None]*len(client)
+        
         #Start a thread for every client
         for i in range(0,len(self.client)):
+            print("starting threads to recieve data")
             threading.Thread(target = self.communcation,args=[i]).start()
-            
+
+
+
+        if calibration:
+            print("Starting threads for calibration")
+            self.calibration = calibration 
+            self.cams = len(client);
+            threading.Thread(target=self.affine).start()
+        
+
+
+    ## See http://www.learnopencv.com/image-alignment-ecc-in-opencv-c-python/
+    def get_gradient(self,im) :
+        # Calculate the x and y gradients using Sobel operator
+        grad_x = cv2.Sobel(im,cv2.CV_32F,1,0,ksize=3)
+        grad_y = cv2.Sobel(im,cv2.CV_32F,0,1,ksize=3)
+        
+        # Combine the two gradients
+        grad = cv2.addWeighted(np.absolute(grad_x), 0.5, np.absolute(grad_y), 0.5, 0)
+        return grad
+
+
+
+
+    def affine(self):
+        warp_mode = cv2.MOTION_HOMOGRAPHY
+        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 5000,  1e-10)
+        warp_matrix = np.eye(3, 3, dtype=np.float32)
+        
+        while True:
+            try:
+                if self.ret[0] is not None and self.client[0].img is not None:
+                    master_cam_grey = cv2.cvtColor(self.client[0].img, cv2.COLOR_BGR2GRAY)
+                else:
+                    print("Image was none!")
+                for i in range(1,self.cams):
+                    if self.ret[i] is not None:
+                        print("Trying to calibrate")
+                        slave_cam = cv2.cvtColor(self.client[i].img, cv2.COLOR_BGR2GRAY)
+                        try:
+                            (cc, warp_matrix) = cv2.findTransformECC (self.get_gradient(master_cam_grey), self.get_gradient(slave_cam),warp_matrix, warp_mode, criteria)
+                        except Exception as e:
+                            print(e)
+                        print(warp_matrix)
+                    else:
+                        print("Image was none")
+                        ti.sleep(5);
+            except:
+                ti.sleep(1)
 
     def communcation(self,i):
         imgNr = 0;
@@ -129,7 +180,7 @@ if __name__ == "__main__":
                 os.mkdir('./cam' + str(client[cnt].camId))
         cnt = cnt + 1;
     #Start the class
-    ClientWrapper(client);
+    ClientWrapper(client,args.Calibrate);
 
 
 #        ret[cnt] = client[cnt].initConnection()
