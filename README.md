@@ -22,6 +22,10 @@ python ThreadedServer.py --Webcam
 python Client.py --HOST 192.168.2.10 --Service RGBWebcam
 ```
 
+# Version 0.3 is on #
+
+It is now possible to access more than just one Server (camera) with the MultiClient. It is also possible to automatically calculate an affine Transform between the cameras, with the background of the ECC-Transform (This just works for smaller offsets).
+
 # IMPORTANT
 
 ## Dependencies:
@@ -41,6 +45,8 @@ python Client.py --HOST 192.168.2.10 --Service RGBWebcam
 
 
 * pykinect2 and so the Windows SDK for Kinect
+
+
 
 ## Server
 
@@ -68,13 +74,6 @@ Clients run on Windows and Linux.
 * Sending multiple images from directory
 * Sending video
 
-
-# Version 0.2 is on #
-
-The first connections are done.
-Several bugs fixed
-Single image can be send
-Arguments can now be parsed
 
 # Overview Clients
 
