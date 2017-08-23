@@ -1,3 +1,4 @@
+#!python2
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 24 21:54:51 2017
@@ -158,21 +159,21 @@ if __name__ == "__main__":
     
     
     
-    print Service
-    print Port
-    print args.HOST
-    print Write
-    print camId
+    print(Service)
+    print(Port)
+    print(args.HOST)
+    print(Write)
+    print(camId)
     cnt = 0;
     client = [None]*len(args.HOST)
-    print client
+    print(client)
     for host in args.HOST:
-        print cnt
+        print (cnt)
             
-        print Service[cnt]
-        print Write[cnt]
-        print host
-        print Port[cnt]
+        print (Service[cnt])
+        print (Write[cnt])
+        print (host)
+        print (Port[cnt])
         client[cnt] = Client.Client(ConnectionType=Service[cnt],show=args.Show,write=Write[cnt],IP=host,Port=Port[cnt],camId=camId[cnt])
         if client[cnt].write:
             imgNr = 0

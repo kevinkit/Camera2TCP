@@ -1,3 +1,4 @@
+#!python2
 # -*- coding: utf-8 -*-
 """
 Created on Sun Apr 16 18:59:08 2017
@@ -38,6 +39,8 @@ except ImportError:
     Camera = False;
 #Advanced in case that Kinect is installed
 try:
+    #sys.path.insert(0,'../Pykinect2')
+    #print(sys.path)
     from pykinect2 import PyKinectV2
     from pykinect2.PyKinectV2 import *
     from pykinect2 import PyKinectRuntime
@@ -46,7 +49,7 @@ try:
     import pygame
     import sys
 except ImportError:
-    print("Missing libs for Kinet!")
+    print("Missing libs for Kinect!")
 
     if not Camera:
         print("No library for camera detection found, neither OpenCV nor Kinect")
@@ -247,7 +250,7 @@ class ThreadedServer(object):
     def getSkeleton(self):
         if self._kinect.has_new_body_frame():
             self._bodies = self._kinect.get_last_body_frame()
-            print self._bodies.bodies.all()
+            print(self._bodies.bodies.all())
 
         if self._bodies is not None:
             return self._bodies;
@@ -511,21 +514,21 @@ if __name__ == "__main__":
     while(1):
         try:
             print("I am on: " + ip)
-            print TS.cnt
+            print (TS.cnt)
             if args.Kinect:
                 print("Kinect available")
             if TS.ret:
                 print(TS.RGB0.shape)
                 print(TS.RGB0.size)
                 print(type(TS.RGB0))
-                print TS.log
+                print(TS.log)
 
                 cv2.imshow('Server: ' + ip + ":" + str(args.Port),TS.RGB0)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
             else:
                 print("no cam detected!")
-                print TS.log
+                print(TS.log)
 
                 cv2.imshow('Server: ' + ip + ":" + str(args.Port),TS.img)
                 if cv2.waitKey(1) & 0xFF == ord('q'):

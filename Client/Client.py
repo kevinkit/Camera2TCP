@@ -1,3 +1,4 @@
+#!python2
 # -*- coding: utf-8 -*-
 """
 Created on Sun Apr 23 12:10:39 2017
@@ -8,7 +9,7 @@ Created on Sun Apr 23 12:10:39 2017
 #General classs for Connecting to any kind of Service
 import socket
 import numpy as np
-
+import sys
 
 class Client(object):
     def __init__(self,ConnectionType='SimpleImage',show=False,write=False,IP=socket.gethostbyname(socket.gethostname()),Port=8080, camId = 0):
@@ -22,7 +23,9 @@ class Client(object):
         self.MESSAGE_ASK = 'Connecting2' + ConnectionType
         self.MESSAGE = ConnectionType
         self.tcpClient = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.tcpClient.connect((IP,Port));        
+        self.tcpClient.connect((IP,Port));      
+        self.IP = IP
+        self.PORT = Port
         self.data = []
         self.shaping = []     
         self.data = ''
@@ -33,11 +36,18 @@ class Client(object):
           #  try:
                 try:
                     print("Trying on" + str(self.host) + "with request" + self.MESSAGE_ASK)
-                    self.tcpClient.send(self.MESSAGE_ASK);
+                    if sys.version_info[0] >= 3:
+                        self.tcpClient.sendto(self.MESSAGE_ASK.encode(),(self.IP, self.PORT))
+                        print("VERSION 3 USING")
+                    else:
+                        self.tcpClient.send(self.MESSAGE_ASK)
+                        print("VERSION 2 USING")
                     self.data += self.tcpClient.recv(self.BUFFER_SIZE)
+                    print("anyhow")
                 except Exception as e:
                     print(e)
-                    print("host unreachable, ...will...try...forever")
+                    print("host unreachable, ...will...try...forever asd")
+                    print(sys.version_info[0])
                     continue;
 
                 if self.data == '':
@@ -76,7 +86,7 @@ class Client(object):
                 continue;
         
             shaping = data.split(',')
-            print shaping
+            print(shaping)
         
             for i in range(0,len(shaping)):
                 shaping[i] = int(shaping[i])
@@ -98,8 +108,8 @@ class Client(object):
         h = np.asarray(temp[0::2],dtype=np.uint16)
         l = np.asarray(temp[1::2],dtype=np.uint16)
         res = (h << 8) + l
-        print len(res)
-        print self.shaping
+        print(len(res))
+        print(self.shaping)
         img = res.reshape(self.shaping[1],self.shaping[0])
         self.img = np.asarray(img >> 5,dtype=np.uint8)
         return not None

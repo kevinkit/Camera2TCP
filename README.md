@@ -33,6 +33,10 @@ It is now possible to access more than just one Server (camera) with the MultiCl
 
 ### Must-Have:
 
+For the EasyInstall scripts you must install the Visaul C++ 2015 Build Tools!
+
+http://landinghub.visualstudio.com/visual-cpp-build-tools
+
 * socket
 * netifaces
 * threading
@@ -66,7 +70,7 @@ Clients run on Windows and Linux.
 * Close clients with str+c in the command line
 
 * AssertionError -80: This is a bug coming from the pykinect framework. To resolve this simply replace the files installed from pip by the ones from the offical repository, which can be found here: https://github.com/Kinect/PyKinect2
-
+Next to it, if you used the script in in easy install this error should be fixed
 
 ## Upcoming features:
 
