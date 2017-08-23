@@ -138,13 +138,20 @@ if __name__ == "__main__":
     
     if len(args.HOST) != len(args.Service):
         print("Host List does not match Service list, taken first Service for all Hosts")
-        Service = [args.Service[0]] * len(args.HOST);
+        if type(args.Service) == list:
+            Service = [args.Service[0]] * len(args.HOST);
+        else:
+            Service = [args.Service] * len(args.HOST);
+            
     else:
         Service = args.Service;
     
     if len(args.HOST) != len(args.Write):
         print("Host List does not match Write enabling list, taken first Disable/Enable for all Hosts")
-        Write = [args.Write[0]] * len(args.HOST);
+        if type(args.HOST) == list:
+            Write = [args.Write[0]] * len(args.HOST);
+        else:
+            Write = [args.Write] * len(args.HOST)
     else:
         Write = args.Write;
     

@@ -442,6 +442,7 @@ class ThreadedServer(object):
                             #f = np.c_[high,low].ravel()
                             f = np.vstack((high, low)).ravel('F')
                             self.log = len(f)
+                            self.log = "SEND DEPTH"
                             #self.log = np.asarray(depthframe,dtype=np.uint8)
                             client.send(np.asarray(f))
                         else:

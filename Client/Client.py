@@ -96,9 +96,14 @@ class Client(object):
     def getDataFromServer(self):
         self.data = ''
         self.tcpClient.send(self.MESSAGE)
+
         try:
             while len(self.data) < self.BUFFER_SIZE:
                 self.data += self.tcpClient.recv(self.BUFFER_SIZE)
+                if len(self.data) < (self.BUFFER_SIZE):
+                    self.data = ''
+                    self.tcpClient.send(self.MESSAGE)
+                
         except Exception:
                 print("host unreachable")
                 return None;
