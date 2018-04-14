@@ -82,7 +82,7 @@ T.start()
 class ThreadedServer(object):
 
 
-    def __init__(self, host, port,camtype="webcam",ID=0,image_name='lena.png',change=True,Debug=True):
+    def __init__(self, host, port,camtype="webcam",ID=0,image_name='lena.png',change=True,Debug=True,testframe=None):
         self.host = host
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -143,6 +143,14 @@ class ThreadedServer(object):
         if camtype == "webcam":
 
             self.cap = cv2.VideoCapture(ID)
+
+        if camtype == 'SimpleImage':
+            if testframe == None:
+                print("testframe  is None, but cam type is Simple Image!")
+                raise 
+            else:
+                self.img = testframe
+            
 
 
     def imagechanger(self):
@@ -213,6 +221,18 @@ class ThreadedServer(object):
                  return ret,frame
             else:
                  return ret, None
+             
+                
+    def setIMG(self,frame):
+        """
+             @brief Function for updating the current image            
+        """
+        self.img = Frame
+        
+        
+    
+    
+    
     def listen(self):
         self.sock.listen(5)
         while True:
@@ -392,6 +412,8 @@ class ThreadedServer(object):
                             self.log  = "succesful loop capture"
                         else:
                             self.log = "unsuccesful loop capture"
+                    elif data == "Connecting2SimpleImage":
+                            
                         #self.ret = False;
                     elif data == "Connecting2KinectWebcam":
                             client.send("1080," + "1920," + "3")
@@ -459,10 +481,10 @@ class ThreadedServer(object):
                             client.send("no depth frame")
                     elif data == 'Connecting2SimpleImage':
                             self.log = self.Debug
-                            if self.Debug:
-                                client.send(str(int(self.img.shape[0])) + ',' + str(int(self.img.shape[1]))+ ',' + str(int(self.img.shape[2])))
-                            else:
-                                client.send("Invalid Request")
+                            #if self.Debug:
+                            client.send(str(int(self.img.shape[0])) + ',' + str(int(self.img.shape[1]))+ ',' + str(int(self.img.shape[2])))
+                            #else:
+                             #   client.send("Invalid Request")
 
                     elif data == "SimpleImage":
                             if self.Debug:
